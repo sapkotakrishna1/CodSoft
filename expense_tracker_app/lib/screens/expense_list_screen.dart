@@ -76,6 +76,35 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
     setState(() {
       expenses.add(newExpense);
     });
+
+    _showExpenseAddedDialog(newExpense); // Show dialog with expense details
+  }
+
+  void _showExpenseAddedDialog(Expense expense) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Expense Added"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text("Title: ${expense.title}"),
+              Text("Amount: \$${expense.amount.toStringAsFixed(2)}"),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _deleteIncome(String id, double amount) {
@@ -207,14 +236,13 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.attach_money),
+            TextButton(
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    String incomeTitle = '';
-                    double incomeAmount;
+                    String title = '';
+                    String amount = ''; // Changed to String for TextField
 
                     return AlertDialog(
                       title: Text("Add Income"),
@@ -224,40 +252,125 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                           TextField(
                             decoration: InputDecoration(labelText: 'Title'),
                             onChanged: (value) {
-                              incomeTitle = value;
+                              title = value;
                             },
                           ),
                           TextField(
                             decoration: InputDecoration(labelText: 'Amount'),
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
-                              incomeAmount = double.tryParse(value) ?? 0.0;
-                            },
-                          ),
-                          SizedBox(height: 10),
-                          TextButton(
-                            child: Text("Add Income"),
-                            onPressed: () {
-                              if (incomeTitle.isNotEmpty && incomeAmount != null && incomeAmount > 0) {
-                                _addIncome(incomeTitle, incomeAmount);
-                                Navigator.of(context).pop(); // Close dialog
-                              }
+                              amount = value; // Store as String
                             },
                           ),
                         ],
                       ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text("Add Income"),
+                          onPressed: () {
+                            double parsedAmount =
+                                double.tryParse(amount) ?? 0.0;
+                            if (title.isNotEmpty &&
+                                parsedAmount > 0) {
+                              _addIncome(title, parsedAmount);
+                              Navigator.of(context).pop(); // Close dialog
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Invalid Input"),
+                                    content: Text(
+                                        "Please enter valid title and amount for income."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text("OK"),
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close dialog
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        ),
+                      ],
                     );
                   },
                 );
               },
+              child: Text('Add Income'),
             ),
-            IconButton(
-              icon: Icon(Icons.money_off),
+            TextButton(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (ctx) => AddExpenseScreen(_addExpense),
-                ));
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    String title = '';
+                    String amount = ''; // Changed to String for TextField
+
+                    return AlertDialog(
+                      title: Text("Add Expense"),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          TextField(
+                            decoration: InputDecoration(labelText: 'Title'),
+                            onChanged: (value) {
+                              title = value;
+                            },
+                          ),
+                          TextField(
+                            decoration: InputDecoration(labelText: 'Amount'),
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              amount = value; // Store as String
+                            },
+                          ),
+                        ],
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text("Add Expense"),
+                          onPressed: () {
+                            double parsedAmount =
+                                double.tryParse(amount) ?? 0.0;
+                            if (title.isNotEmpty &&
+                                parsedAmount > 0) {
+                              _addExpense(title, parsedAmount);
+                              Navigator.of(context).pop(); // Close dialog
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Invalid Input"),
+                                    content: Text(
+                                        "Please enter valid title and amount for expense."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: Text("OK"),
+                                        onPressed: () {
+                                          Navigator.of(context)
+                                              .pop(); // Close dialog
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
+              child: Text('Add Expense'),
             ),
           ],
         ),
